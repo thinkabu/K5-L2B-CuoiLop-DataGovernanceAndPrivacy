@@ -1,0 +1,121 @@
+{
+  "run_name": "baseline",
+  "track": "t09",
+  "created_at": "2026-11-14T07:52:52+00:00",
+  "git_sha": "b0ce8bf",
+  "seed": 42,
+  "n_items": 12,
+  "runtime_seconds": 0.0247,
+  "runtime_per_100_items_s": 0.2058,
+  "machine": {
+    "python": "3.13.2",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel"
+  },
+  "config": {
+    "split": "all",
+    "max_false_hold": 0.5
+  },
+  "metrics": [
+    {
+      "name": "Critical-miss Rate",
+      "value": 0.42857142857142855,
+      "direction": "lower",
+      "unit": "risky cases given GO / risky cases",
+      "numerator": 3,
+      "denominator": 7,
+      "n": 8,
+      "slice": "all",
+      "primary": true,
+      "notes": "",
+      "extra": {}
+    },
+    {
+      "name": "High-risk HOLD Recall",
+      "value": 0.5714285714285714,
+      "direction": "higher",
+      "unit": "risky cases not GO / risky cases",
+      "numerator": 4,
+      "denominator": 7,
+      "n": null,
+      "slice": "all",
+      "primary": false,
+      "notes": "",
+      "extra": {}
+    },
+    {
+      "name": "False HOLD rate",
+      "value": 1.0,
+      "direction": "lower",
+      "unit": "GO cases blocked / GO cases",
+      "numerator": 1,
+      "denominator": 1,
+      "n": null,
+      "slice": "all",
+      "primary": false,
+      "notes": "",
+      "extra": {}
+    },
+    {
+      "name": "Exact decision accuracy",
+      "value": 0.5,
+      "direction": "higher",
+      "unit": "fraction",
+      "numerator": null,
+      "denominator": null,
+      "n": 8,
+      "slice": "all",
+      "primary": false,
+      "notes": "",
+      "extra": {}
+    },
+    {
+      "name": "Guardrail: False HOLD rate <= 0.5",
+      "value": 0.0,
+      "direction": "higher",
+      "unit": "1 = pass, 0 = fail (constrained primary)",
+      "numerator": null,
+      "denominator": null,
+      "n": null,
+      "slice": "all",
+      "primary": false,
+      "notes": "",
+      "extra": {}
+    },
+    {
+      "name": "Reason-code match (risky)",
+      "value": 0.0,
+      "direction": "higher",
+      "unit": "risky cases with ≥1 correct reason code",
+      "numerator": 0,
+      "denominator": 7,
+      "n": null,
+      "slice": "all",
+      "primary": false,
+      "notes": "",
+      "extra": {}
+    }
+  ],
+  "extra": {
+    "gt": "reports\\internal_gold_dev.csv",
+    "pred": "out\\baseline\\decisions.csv",
+    "notes": [
+      "split=all (N=8); official score uses split=eval, split=all is self-check only",
+      "N is tiny: report results case by case, not only as rates",
+      "guardrail False HOLD rate <= 0.5: FAIL — primary metric is not valid on its own (value=1.0)",
+      "report the trivial all-HOLD baseline next to your PoC"
+    ],
+    "slices": [
+      {
+        "slice": "GO",
+        "n": 1,
+        "accuracy": 0.0
+      },
+      {
+        "slice": "HOLD",
+        "n": 7,
+        "accuracy": 0.5714285714285714
+      }
+    ]
+  }
+}
