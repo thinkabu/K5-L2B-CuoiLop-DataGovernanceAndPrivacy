@@ -1,0 +1,357 @@
+# ============================================================================
+# G07 privacy decision policy — rule file for T09 (Multi-Market Privacy Gate)
+#
+# TEACHING ARTEFACT, NOT LEGAL ADVICE. Every rule carries its source, the date
+# the wording was read, a confidence level and a needs_legal_review flag.
+# Article numbers must be re-checked against the original instrument by a DPO
+# or counsel before this file is used on a real collection.
+#
+# Frozen 2026-11-14 BEFORE any evaluation run (lab rule 1: no tuning on eval).
+# Decision precedence: HOLD > REWORK > GO. NOTE never changes the decision.
+# ============================================================================
+policy_version: g07-1.1.0
+effective_date: 2026-11-14
+as_of: 2026-11-14          # the date the gate reasons about; rules not yet in force only produce notes
+decision_precedence: [HOLD, REWORK, GO]
+severity_weight: {HOLD: 1.0, REWORK: 0.5, NOTE: 0.1}
+
+# ---------------------------------------------------------------------------
+# Changelog
+# 1.0.0 (2026-11-14, frozen before the first evaluate run)
+#   19 rules. No rule read whether a legitimate-interests assessment exists, because we had not
+#   noticed the field: our own case inventory printed a fixed list of keys and silently dropped
+#   anything outside it.
+# 1.1.0 (2026-11-14, after an external review of the submission)
+#   Adds field_aliases plus R-SG-02 and R-EU-04, so a legitimate-interests basis is now judged on
+#   the evidence in the file instead of on the absence of a rule. The gap was reported by another
+#   reviewer: CASE-06 carries li_assessment_done: true and CASE-10 carries lia_done: true, the same
+#   fact under two names, and neither was read. Effect measured on all 12 cases before shipping:
+#   CASE-06 stays GO but now for a stated reason, CASE-04 gains LIA_MISSING on top of a decision that
+#   was already HOLD, and no other case changes. Every eval-split decision (CASE-09..12) is unchanged,
+#   so nothing here was tuned against the official split.
+# ---------------------------------------------------------------------------
+
+# The fixture names one fact two ways, so the alias is declared here as data rather than patched into
+# the engine. The canonical name wins if both are present; every copy is written to the audit log.
+field_aliases:
+  lia_done: [li_assessment_done, legitimate_interest_assessment_done]
+
+# Fields that exist in the case files and that no rule reads, with the reason. Anything present in a
+# case and absent from both lists is reported by tools/field_coverage.py, which exits 1 on a gap.
+fields_not_used:
+  purpose: "identical in all 12 cases (ADAS model training), so it carries no decision signal here"
+  data_subjects: "identical in all 12 cases (pedestrians, other_drivers); revisit if a case ever names employees or patients"
+  transfer.destination: "free text; the decision rests on transfer.mechanism and transfer.transfer_impact_assessment, which are checkable"
+
+# Markets this policy claims to cover. A case from any other market is escalated
+# instead of silently passed (an unlisted market is an unknown risk, not zero risk).
+covered_markets: [VN, EU, US-CA, SG, IN]
+uncovered_market:
+  decision: HOLD
+  reason_code: AMBIGUOUS_NEEDS_LEGAL
+  note: market not covered by this policy version
+
+# A free-text ambiguity note is an escalation trigger, except when it only says a
+# duty starts in the future: docs/tracks/T09.md requires a future effective_date to
+# be recorded as a note, not scored as a present-day violation.
+ambiguity:
+  decision: HOLD
+  reason_code: AMBIGUOUS_NEEDS_LEGAL
+  upcoming_law_markers: ["apply from", "applies from", "upcoming law", "effective from",
+                         "core obligations apply", "from 13/05/2027", "from 02/12/2027", "from 02/08/2028"]
+  upcoming_reason_code: UPCOMING_OBLIGATION
+
+retention:
+  max_days: 365            # frozen threshold: >1 year of raw road video is not justified by ADAS training
+  rationale: "storage limitation — keep only as long as the training purpose needs"
+
+rules:
+  # ----------------------------------------------------------------- lawful basis
+  - id: R-VN-01
+    markets: [VN]
+    all:
+      - {field: lawful_basis, op: not_in, value: [consent, contract, legal_obligation, vital_interest, public_task]}
+    decision: HOLD
+    reason_code: NO_LAWFUL_BASIS
+    note: "VN law has no legitimate-interest basis; processing without consent needs one of the listed exceptions."
+    source: {doc: "Luat Bao ve du lieu ca nhan 91/2025/QH15", ref: "Art. 9 (consent), Art. 19 (cases not requiring consent)",
+             url: "https://thuvienphapluat.vn/van-ban/Bo-may-hanh-chinh/Luat-Bao-ve-du-lieu-ca-nhan-2025-so-91-2025-QH15-625628.aspx"}
+    version_date: 2026-11-13
+    confidence: medium
+    needs_legal_review: true
+
+  - id: R-EU-01
+    markets: [EU]
+    all:
+      - {field: lawful_basis, op: not_in, value: [consent, contract, legal_obligation, vital_interest, public_task, legitimate_interest]}
+    decision: HOLD
+    reason_code: NO_LAWFUL_BASIS
+    note: "No Art. 6(1) basis identified (an 'unknown' basis is not a basis)."
+    source: {doc: "GDPR (EUR-Lex)", ref: "Art. 6(1)", url: "https://eur-lex.europa.eu/eli/reg/2016/679/oj"}
+    version_date: 2026-11-14
+    confidence: medium
+    needs_legal_review: true
+
+  - id: R-EU-02
+    markets: [EU]
+    all:
+      - {field: lawful_basis, op: eq, value: legitimate_interest}
+      - {field: data_types, op: includes_any, value: [in_cabin_video, face, biometric]}
+    decision: HOLD
+    reason_code: NO_LAWFUL_BASIS
+    note: "In-cabin or facial imagery under legitimate interest: EDPB treats in-vehicle monitoring of identifiable people as needing a stricter basis and a documented balancing test."
+    source: {doc: "EDPB Guidelines 01/2020 on connected vehicles", ref: "s. 2.3 legitimate interest, s. 3 in-vehicle processing",
+             url: "https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-012020-processing-personal-data-context_en"}
+    version_date: 2026-11-14
+    confidence: low
+    needs_legal_review: true
+
+  - id: R-EU-04
+    markets: [EU]
+    all:
+      - {field: lawful_basis, op: eq, value: legitimate_interest}
+      - none:
+          - {field: lia_done, op: is_true}
+    decision: HOLD
+    reason_code: LIA_MISSING
+    note: "Legitimate interest without a documented balancing test on file: the basis cannot be relied on, and the controller cannot show the assessment if asked."
+    source: {doc: "GDPR (EUR-Lex) and EDPB Guidelines 01/2020", ref: "Art. 6(1)(f) with Art. 5(2) accountability; EDPB s. 2.3",
+             url: "https://eur-lex.europa.eu/eli/reg/2016/679/oj"}
+    version_date: 2026-11-14
+    confidence: medium
+    needs_legal_review: true
+
+  - id: R-SG-02
+    markets: [SG]
+    all:
+      - {field: lawful_basis, op: eq, value: legitimate_interest}
+      - none:
+          - {field: lia_done, op: is_true}
+    decision: HOLD
+    reason_code: LIA_MISSING
+    note: "The PDPA legitimate-interests exception is only available once the assessment is done and recorded, and the benefit must be shown to outweigh the adverse effect."
+    source: {doc: "Singapore PDPA 2012", ref: "First Schedule Part 3 (legitimate interests), paras 1-2 assessment requirement",
+             url: "https://sso.agc.gov.sg/Act/PDPA2012"}
+    version_date: 2026-11-14
+    confidence: low
+    needs_legal_review: true
+
+  - id: R-CA-01
+    markets: [US-CA]
+    all:
+      - {field: notice_given, op: is_false}
+    decision: HOLD
+    reason_code: NOTICE_MISSING
+    note: "CCPA/CPRA has no lawful-basis concept; a notice at or before collection is the gating duty."
+    source: {doc: "CCPA/CPRA (California Civil Code 1798.100)", ref: "1798.100(a) notice at collection",
+             url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=1798.100&lawCode=CIV"}
+    version_date: 2026-11-14
+    confidence: medium
+    needs_legal_review: true
+
+  - id: R-CA-02
+    markets: [US-CA]
+    all:
+      - {field: data_types, op: includes_any, value: [precise_location, biometric, face]}
+    decision: REWORK
+    reason_code: SPI_LIMIT_REQUIRED
+    note: "Precise geolocation and biometrics are sensitive personal information: use must be limited and a limit/opt-out path offered."
+    source: {doc: "CPRA", ref: "1798.121 right to limit use of sensitive personal information",
+             url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=1798.121&lawCode=CIV"}
+    version_date: 2026-11-14
+    confidence: low
+    needs_legal_review: true
+
+  # ----------------------------------------------------------------- consent quality
+  - id: R-CONS-01
+    markets: ['*']
+    all:
+      - {field: lawful_basis, op: eq, value: consent}
+      - {field: consent.obtained, op: is_false}
+    decision: HOLD
+    reason_code: NO_LAWFUL_BASIS
+    note: "Consent is claimed as the basis but was never obtained."
+    source: {doc: "GDPR (EUR-Lex)", ref: "Art. 6(1)(a), Art. 7", url: "https://eur-lex.europa.eu/eli/reg/2016/679/oj"}
+    version_date: 2026-11-14
+    confidence: high
+    needs_legal_review: false
+
+  - id: R-CONS-02
+    markets: ['*']
+    all:
+      - {field: lawful_basis, op: eq, value: consent}
+      - any:
+          - {field: consent.granular, op: is_false}
+          - {field: consent.withdrawable, op: is_false}
+    decision: REWORK
+    reason_code: CONSENT_INVALID
+    note: "Bundled or non-withdrawable consent is not valid consent; re-collect with a specific, withdrawable prompt."
+    source: {doc: "Luat 91/2025/QH15 and GDPR", ref: "Luat 91 Art. 9-10 (specific, voluntary, withdrawable); GDPR Art. 7(3)",
+             url: "https://eur-lex.europa.eu/eli/reg/2016/679/oj"}
+    version_date: 2026-11-13
+    confidence: medium
+    needs_legal_review: true
+
+  - id: R-CONS-03
+    markets: ['*']
+    all:
+      - {field: lawful_basis, op: eq, value: consent}
+      - {field: consent.record_available, op: is_false}
+    decision: REWORK
+    reason_code: CONSENT_RECORD_MISSING
+    note: "The controller must be able to demonstrate consent; with no record the basis cannot be evidenced in an audit."
+    source: {doc: "GDPR (EUR-Lex)", ref: "Art. 7(1) demonstrate consent", url: "https://eur-lex.europa.eu/eli/reg/2016/679/oj"}
+    version_date: 2026-11-14
+    confidence: medium
+    needs_legal_review: false
+
+  # ----------------------------------------------------------------- cross-border
+  - id: R-XB-01
+    markets: [EU]
+    all:
+      - {field: transfer.cross_border, op: is_true}
+      - {field: transfer.mechanism, op: in, value: [null, "unknown", "none", ""]}
+    decision: HOLD
+    reason_code: XBORDER_NO_MECHANISM
+    note: "Transfer out of the EEA with no Chapter V mechanism (adequacy, SCC plus TIA, BCR, derogation)."
+    source: {doc: "GDPR (EUR-Lex)", ref: "Chapter V, Art. 44-49", url: "https://eur-lex.europa.eu/eli/reg/2016/679/oj"}
+    version_date: 2026-11-14
+    confidence: high
+    needs_legal_review: true
+
+  - id: R-VN-02
+    markets: [VN]
+    all:
+      - {field: transfer.cross_border, op: is_true}
+      - {field: transfer.transfer_impact_assessment, op: is_false}
+    decision: HOLD
+    reason_code: XBORDER_NO_IMPACT_ASSESSMENT
+    note: "A cross-border transfer impact-assessment dossier must exist and be filed with the authority within 60 days."
+    source: {doc: "Luat 91/2025/QH15 and Nghi dinh 356/2025/ND-CP", ref: "Luat 91 Art. 21 (transfer impact assessment); ND 356 dossier rules",
+             url: "https://thuvienphapluat.vn/van-ban/Bo-may-hanh-chinh/Luat-Bao-ve-du-lieu-ca-nhan-2025-so-91-2025-QH15-625628.aspx"}
+    version_date: 2026-11-13
+    confidence: medium
+    needs_legal_review: true
+
+  - id: R-SG-01
+    markets: [SG]
+    all:
+      - {field: transfer.cross_border, op: is_true}
+      - {field: transfer.mechanism, op: in, value: [null, "unknown", "none", ""]}
+    decision: HOLD
+    reason_code: XBORDER_NO_MECHANISM
+    note: "PDPA transfer limitation: comparable protection must be secured by contract or other legally enforceable means."
+    source: {doc: "Singapore PDPA 2012", ref: "s. 26 transfer limitation obligation; PDP Regulations 2021 reg. 10",
+             url: "https://sso.agc.gov.sg/Act/PDPA2012"}
+    version_date: 2026-11-14
+    confidence: low
+    needs_legal_review: true
+
+  # ----------------------------------------------------------------- impact assessment
+  - id: R-EU-03
+    markets: [EU]
+    all:
+      - {field: dpia_done, op: is_false}
+    decision: HOLD
+    reason_code: DPIA_MISSING
+    note: "Systematic monitoring of a publicly accessible area, or of people in the cabin, requires a DPIA before processing starts."
+    source: {doc: "GDPR (EUR-Lex)", ref: "Art. 35(1), 35(3)(c)", url: "https://eur-lex.europa.eu/eli/reg/2016/679/oj"}
+    version_date: 2026-11-14
+    confidence: high
+    needs_legal_review: false
+
+  - id: R-VN-03
+    markets: [VN]
+    all:
+      - {field: dpia_done, op: is_false}
+    decision: HOLD
+    reason_code: DPIA_MISSING
+    note: "Processing impact assessment must be prepared and filed within 60 days, and updated within 6 months of a change."
+    source: {doc: "Luat 91/2025/QH15 and Nghi dinh 356/2025/ND-CP", ref: "Luat 91 Art. 20, Art. 22",
+             url: "https://thuvienphapluat.vn/van-ban/Bo-may-hanh-chinh/Luat-Bao-ve-du-lieu-ca-nhan-2025-so-91-2025-QH15-625628.aspx"}
+    version_date: 2026-11-13
+    confidence: medium
+    needs_legal_review: true
+
+  # ----------------------------------------------------------------- storage and retention
+  - id: R-RET-01
+    markets: ['*']
+    all:
+      - {field: retention_days, op: is_null}
+    decision: REWORK
+    reason_code: RETENTION_UNBOUNDED
+    note: "No retention period set: storage limitation cannot be demonstrated."
+    source: {doc: "GDPR (EUR-Lex)", ref: "Art. 5(1)(e) storage limitation", url: "https://eur-lex.europa.eu/eli/reg/2016/679/oj"}
+    version_date: 2026-11-14
+    confidence: high
+    needs_legal_review: false
+
+  - id: R-RET-02
+    markets: ['*']
+    all:
+      - {field: retention_days, op: gt, value: 365}
+    decision: REWORK
+    reason_code: RETENTION_EXCESSIVE
+    note: "Retention beyond the frozen 365-day ceiling needs a written justification per purpose."
+    source: {doc: "GDPR (EUR-Lex) plus the retention ceiling set by this group", ref: "Art. 5(1)(e) and G07 ceiling",
+             url: "https://eur-lex.europa.eu/eli/reg/2016/679/oj"}
+    version_date: 2026-11-14
+    confidence: medium
+    needs_legal_review: true
+
+  - id: R-SEC-01
+    markets: ['*']
+    all:
+      - {field: storage.raw_retained, op: is_true}
+      - {field: storage.location, op: eq, value: cloud}
+      - {field: anonymization, op: in, value: [null, "none", ""]}
+    decision: HOLD
+    reason_code: RAW_PII_IN_CLOUD
+    note: "Identifiable raw footage uploaded with no redaction at the edge: the privacy control the design relies on is absent."
+    source: {doc: "GDPR (EUR-Lex)", ref: "Art. 5(1)(c) minimisation, Art. 25 data protection by design",
+             url: "https://eur-lex.europa.eu/eli/reg/2016/679/oj"}
+    version_date: 2026-11-14
+    confidence: medium
+    needs_legal_review: false
+
+  - id: R-SEC-02
+    markets: ['*']
+    all:
+      - {field: storage.raw_retained, op: is_true}
+      - {field: storage.encryption_at_rest, op: is_false}
+    decision: HOLD
+    reason_code: NO_ENCRYPTION
+    note: "Raw personal data retained without encryption at rest."
+    source: {doc: "GDPR (EUR-Lex)", ref: "Art. 32(1)(a) security of processing", url: "https://eur-lex.europa.eu/eli/reg/2016/679/oj"}
+    version_date: 2026-11-14
+    confidence: high
+    needs_legal_review: false
+
+  # ----------------------------------------------------------------- minors
+  - id: R-MIN-01
+    markets: ['*']
+    all:
+      - {field: minors_possible, op: is_true}
+    decision: HOLD
+    reason_code: MINORS
+    note: "Children may be in frame and no verifiable parental-consent or exclusion mechanism is evidenced in the case file."
+    source: {doc: "GDPR and DPDP Act 2023 (India)", ref: "GDPR Art. 8; DPDP s. 9 (verifiable parental consent)",
+             url: "https://www.meity.gov.in/data-protection-framework"}
+    version_date: 2026-11-14
+    confidence: medium
+    needs_legal_review: true
+
+  # ----------------------------------------------------------------- upcoming law (note only)
+  - id: R-IN-01
+    markets: [IN]
+    effective_date: 2027-05-13        # in the future relative to as_of -> NOTE, not a violation
+    all:
+      - {field: market, op: eq, value: IN}
+    decision: HOLD
+    reason_code: DPDP_CORE_OBLIGATIONS
+    note: "DPDP core obligations (notice, consent manager, parental consent) bind from 13/05/2027 under the DPDP Rules 2025; plan the controls now, do not score it as a present-day breach."
+    source: {doc: "DPDP Act 2023 and DPDP Rules 2025 (India)", ref: "Rules 2025 commencement schedule",
+             url: "https://www.meity.gov.in/data-protection-framework"}
+    version_date: 2026-11-14
+    confidence: medium
+    needs_legal_review: true
