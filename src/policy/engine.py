@@ -111,6 +111,7 @@ class CaseVerdict:
     risk_score: float
     needs_legal_review: bool
     upcoming_obligations: list[str]
+    normalisations: list[str] = dc_field(default_factory=list)
 
     def reason_codes_str(self) -> str:
         return ";".join(self.reason_codes)
@@ -197,6 +198,31 @@ def _to_date(v: Any) -> date | None:
         raise ValueError(f"bad date {v!r}: expected yyyy-mm-dd")
 
 
+def apply_field_aliases(case: dict, policy: dict) -> tuple[dict, list[str]]:
+    """Copy a known alias onto its canonical field name, and say what was copied.
+
+    The fixture names the same fact two ways: CASE-06 carries li_assessment_done and CASE-10
+    carries lia_done. A rule can only read one name, so the aliases are declared as data in the
+    policy file (field_aliases) rather than hidden in code, and every copy is reported back so the
+    audit trail shows that the gate renamed something before judging it. The canonical field wins
+    when both are present: an explicit value is never overwritten by an alias.
+    """
+    aliases = policy.get("field_aliases") or {}
+    if not aliases:
+        return case, []
+    out = dict(case)
+    applied: list[str] = []
+    for canonical, names in aliases.items():
+        if _norm(out.get(canonical)) is not None:
+            continue
+        for name in _as_list(names):
+            if _norm(out.get(name)) is not None:
+                out[canonical] = out[name]
+                applied.append(f"{name}->{canonical}")
+                break
+    return out, applied
+
+
 def _ambiguity_finding(case: dict, policy: dict) -> Finding | None:
     notes = str(get_field(case, "ambiguity_notes") or "").strip()
     if not notes:
@@ -219,6 +245,7 @@ def _ambiguity_finding(case: dict, policy: dict) -> Finding | None:
 
 def evaluate_case(case: dict, policy: dict, as_of: str | date | None = None) -> CaseVerdict:
     """Run every rule of the policy over one case and combine the findings."""
+    case, normalisations = apply_field_aliases(case, policy)
     market = str(get_field(case, "market") or "").strip()
     asof = _to_date(as_of or policy.get("as_of") or policy.get("effective_date")) or date.today()
     weights = policy.get("severity_weight") or {"HOLD": 1.0, "REWORK": 0.5, NOTE: 0.1}
@@ -271,4 +298,5 @@ def evaluate_case(case: dict, policy: dict, as_of: str | date | None = None) -> 
         needs_legal_review=any(f.needs_legal_review for f in findings),
         upcoming_obligations=[f"{f.rule_id}:{f.reason_code}@{f.deferred_to or 'n/a'}"
                               for f in findings if f.decision == NOTE],
+        normalisations=normalisations,
     )
