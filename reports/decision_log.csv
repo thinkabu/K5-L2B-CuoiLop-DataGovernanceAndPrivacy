@@ -1,0 +1,5 @@
+ts,scope,status,canonical,reason_code,reason,owner,evidence
+2026-11-14T07:47:31+00:00,t09:poc,HOLD,HOLD,CASES_BLOCKED,10 of 12 cases are blocked pending legal sign-off,"Pham Huu Minh (data governance reviewer, G07)",out\poc\decisions.csv;out\poc\findings.csv;out\poc\audit_checklist.md;configs\policy\privacy_policy_v1.yaml
+2026-11-14T07:48:26+00:00,t09:poc,HOLD,HOLD,CASES_BLOCKED,11 of 12 cases are blocked pending legal sign-off,"Pham Huu Minh (data governance reviewer, G07)",out\poc\decisions.csv;out\poc\findings.csv;out\poc\audit_checklist.md;configs\policy\privacy_policy_v1.yaml
+2026-11-14T07:52:00+00:00,t09:poc,HOLD,HOLD,CASES_BLOCKED,11 of 12 cases are blocked pending legal sign-off,"Pham Huu Minh (data governance reviewer, G07)",out\poc\decisions.csv;out\poc\findings.csv;out\poc\audit_checklist.md;configs\policy\privacy_policy_v1.yaml
+2026-11-14T08:43:21+00:00,t09:poc,HOLD,HOLD,CASES_BLOCKED,10 of 12 cases are blocked pending legal sign-off,"Pham Huu Minh (data governance reviewer, G07)",out\poc\decisions.csv;out\poc\findings.csv;out\poc\audit_checklist.md;configs\policy\privacy_policy_v1.yaml

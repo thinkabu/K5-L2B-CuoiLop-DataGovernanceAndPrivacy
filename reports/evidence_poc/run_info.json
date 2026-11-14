@@ -1,0 +1,39 @@
+{
+  "track": "t09",
+  "run_name": "poc",
+  "status": 0,
+  "seed": 42,
+  "offline": true,
+  "input": "fixtures\\t09_privacy_gate",
+  "output": "out\\poc",
+  "pipeline": "src.pipeline",
+  "config_hash": "8d2ab17cc02e",
+  "git_sha": "b0ce8bf",
+  "runtime_seconds": 0.1786,
+  "stats": {
+    "policy_version": "g07-1.1.0",
+    "policy_file": "configs\\policy\\privacy_policy_v1.yaml",
+    "policy_sha256": "ef49790a9ef3c7440bb3619ba83e5a9fe3e4d429f4e3fe333a70e02163142245",
+    "n_rules": 21,
+    "n_findings": 21,
+    "decision_counts": {
+      "HOLD": 10,
+      "GO": 2
+    },
+    "policy": "poc:rule_engine",
+    "n_items": 12,
+    "budget": 12,
+    "n_reviewed": 8,
+    "n_overridden": 0
+  },
+  "machine": {
+    "python": "3.13.2",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel"
+  },
+  "output_check": {
+    "pred_file": "out\\poc\\decisions.csv",
+    "exists": true,
+    "missing_columns": []
+  }
+}

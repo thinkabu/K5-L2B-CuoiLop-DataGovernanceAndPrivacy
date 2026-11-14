@@ -1,0 +1,13 @@
+case_id,decision,reason_codes,market,score,reason
+CASE-01,HOLD,BASELINE_NO_CONSENT,VN,1.0,consent-only checklist
+CASE-02,GO,BASELINE_CONSENT_OK,EU,0.0,consent-only checklist
+CASE-03,GO,BASELINE_CONSENT_OK,VN,0.0,consent-only checklist
+CASE-04,HOLD,BASELINE_NO_CONSENT,EU,1.0,consent-only checklist
+CASE-05,HOLD,BASELINE_NO_CONSENT,US-CA,1.0,consent-only checklist
+CASE-06,HOLD,BASELINE_NO_CONSENT,SG,1.0,consent-only checklist
+CASE-07,GO,BASELINE_CONSENT_OK,VN,0.0,consent-only checklist
+CASE-08,HOLD,BASELINE_NO_CONSENT,EU,1.0,consent-only checklist
+CASE-09,GO,BASELINE_CONSENT_OK,IN,0.0,consent-only checklist
+CASE-10,HOLD,BASELINE_NO_CONSENT,EU,1.0,consent-only checklist
+CASE-11,HOLD,BASELINE_NO_CONSENT,US-CA,1.0,consent-only checklist
+CASE-12,HOLD,BASELINE_NO_CONSENT,VN,1.0,consent-only checklist

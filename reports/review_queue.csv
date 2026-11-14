@@ -1,0 +1,13 @@
+rank,item_id,score,reason,suggested_action,slice,evidence_path,reviewer,reviewer_decision,override_value,review_note,reviewed_at
+1,CASE-12,3.0,NO_LAWFUL_BASIS;RETENTION_EXCESSIVE;NO_ENCRYPTION,HOLD,VN,,Pham Huu Minh,approve,,Three independent gaps; no release before legal signs the basis and the encryption fix.,2026-11-14
+2,CASE-08,2.5,NO_LAWFUL_BASIS;AMBIGUOUS_NEEDS_LEGAL,HOLD,EU,,Pham Huu Minh,approve,,Processor vs joint controller is unresolved in the contract; counsel owns this one.,2026-11-14
+3,CASE-09,2.45,CONSENT_RECORD_MISSING;MINORS,HOLD,IN,,Pham Huu Minh,approve,,"DPDP binds 13/05/2027, but the missing consent record and possible minors are gaps today.",2026-11-14
+4,CASE-04,2.35,NO_LAWFUL_BASIS;DPIA_MISSING,HOLD,EU,,Pham Huu Minh,approve,,"In-cabin footage under legitimate interest, no DPIA, and no balancing test on file either (LIA_MISSING, new in v1.1.0). All three must be fixed, not one.",2026-11-14
+5,CASE-03,2.25,CONSENT_INVALID;RETENTION_UNBOUNDED;RAW_PII_IN_CLOUD,HOLD,VN,,Pham Huu Minh,approve,,Raw faces in the cloud with no retention limit is the worst combination in this batch.,2026-11-14
+6,CASE-11,2.1,SPI_LIMIT_REQUIRED;AMBIGUOUS_NEEDS_LEGAL,HOLD,US-CA,,Pham Huu Minh,approve,,Precise location is SPI; covered-business threshold question goes to counsel.,2026-11-14
+7,CASE-01,1.25,NO_LAWFUL_BASIS,HOLD,VN,,,,,,
+8,CASE-02,1.25,XBORDER_NO_MECHANISM,HOLD,EU,,,,,,
+9,CASE-05,1.25,NOTICE_MISSING,HOLD,US-CA,,,,,,
+10,CASE-07,1.25,XBORDER_NO_IMPACT_ASSESSMENT,HOLD,VN,,,,,,
+11,CASE-06,0.0,no gap found,GO,SG,,Pham Huu Minh,approve,,"Correcting my round-1 escalation. I wrote that no legitimate-interests assessment was on file; CASE-06.json carries li_assessment_done: true, so that was wrong. The queue did not show the field because policy v1.0.0 had no SG rule reading it. Under v1.1.0, R-SG-02 reads it (aliased to lia_done) and the case passes on the evidence. Approving GO.",2026-11-14
+12,CASE-10,0.0,no gap found,GO,EU,,Pham Huu Minh,approve,,"Adequacy mechanism, transfer impact assessment and DPIA are all on file; release approved.",2026-11-14

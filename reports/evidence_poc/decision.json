@@ -1,0 +1,27 @@
+{
+  "status": "HOLD",
+  "reason_code": "CASES_BLOCKED",
+  "reason": "10 of 12 cases are blocked pending legal sign-off",
+  "owner": "Pham Huu Minh (data governance reviewer, G07)",
+  "scope": "t09:poc",
+  "evidence": [
+    "out\\poc\\decisions.csv",
+    "out\\poc\\findings.csv",
+    "out\\poc\\audit_checklist.md",
+    "configs\\policy\\privacy_policy_v1.yaml"
+  ],
+  "metrics": {
+    "n_cases": 12,
+    "decision_counts": {
+      "HOLD": 10,
+      "GO": 2
+    },
+    "n_needs_legal_review": 10,
+    "n_reviewed": 8,
+    "n_overridden": 0,
+    "policy_version": "g07-1.1.0",
+    "policy_sha256": "ef49790a9ef3c7440bb3619ba83e5a9fe3e4d429f4e3fe333a70e02163142245"
+  },
+  "ts": "2026-11-14T08:43:21+00:00",
+  "canonical": "HOLD"
+}
