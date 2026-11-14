@@ -1,0 +1,9 @@
+case_id,gold_decision,gold_reason_codes,split,labelled_by,basis_of_label
+CASE-01,HOLD,NO_LAWFUL_BASIS,dev,G07,"VN market with lawful_basis=legitimate_interest; Law 91/2025 lists no legitimate-interest basis"
+CASE-02,HOLD,XBORDER_NO_MECHANISM,dev,G07,"EU transfer to a non-adequate third country with mechanism=null; GDPR Chapter V"
+CASE-03,HOLD,RAW_PII_IN_CLOUD;CONSENT_INVALID;RETENTION_UNBOUNDED,dev,G07,"face data retained raw in cloud with anonymization=none, consent not granular or withdrawable, retention_days=null"
+CASE-04,HOLD,DPIA_MISSING,dev,G07,"EU in-cabin video under legitimate interest with dpia_done=false; GDPR Art. 35"
+CASE-05,HOLD,NOTICE_MISSING,dev,G07,"US-CA with notice_given=false; CCPA notice at collection is the gating duty"
+CASE-06,GO,NO_GAP_FOUND,dev,G07,"SG with the PDPA legitimate-interests exception, on-device storage, 90-day retention, blur at the edge"
+CASE-07,HOLD,XBORDER_NO_IMPACT_ASSESSMENT,dev,G07,"VN cross-border transfer with mechanism=unknown and no transfer impact assessment; Law 91/2025 Art. 21"
+CASE-08,HOLD,NO_LAWFUL_BASIS;AMBIGUOUS_NEEDS_LEGAL,dev,G07,"EU with lawful_basis=unknown plus an unresolved processor vs joint-controller question"
